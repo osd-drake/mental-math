@@ -4,7 +4,7 @@ from reportlab.lib.colors import HexColor
 
 from book.utils import TEAL, CORAL, GOLD, DARK, BG, WHITE, PAGE_W, PAGE_H, rounded_card, ar
 from book.text import draw_ar_right, draw_ar_center, draw_ar_paragraph, wrap_arabic
-from book.drawings import make_soroban_drawing, make_mascot_drawing, get_anchor_points
+from book.drawings import make_soroban_drawing, make_mascot_drawing, make_posture_drawing, get_anchor_points
 from book import content as C
 
 MARGIN = 42
@@ -13,11 +13,49 @@ LEFT = MARGIN
 CONTENT_W = PAGE_W - 2 * MARGIN
 
 GRAY = HexColor("#5B5B6B")
+LIGHT_TEAL = HexColor("#7FD9C9")
+LIGHT_GRAY = HexColor("#B9B9CE")
+CARD_STROKE = HexColor("#EFE6D8")
+
+
+def _diamond_pattern(c, color, alpha=0.05, spacing=44):
+    """Tile a faint diamond-outline grid across the whole page for subtle texture."""
+    c.saveState()
+    c.setStrokeColor(color)
+    c.setStrokeAlpha(alpha)
+    c.setLineWidth(1)
+    size = spacing * 0.32
+    row = 0
+    y = -spacing
+    while y < PAGE_H + spacing:
+        offset = (spacing / 2) if row % 2 else 0
+        x = -spacing + offset
+        while x < PAGE_W + spacing:
+            p = c.beginPath()
+            p.moveTo(x - size, y)
+            p.lineTo(x, y + size)
+            p.lineTo(x + size, y)
+            p.lineTo(x, y - size)
+            p.close()
+            c.drawPath(p, stroke=1, fill=0)
+            x += spacing
+        y += spacing * 0.5
+        row += 1
+    c.restoreState()
 
 
 def _background(c):
+    """Shared page backdrop: cream fill + very soft corner accents, used on every
+    interior page so the book reads as a designed object rather than blank paper."""
     c.setFillColor(BG)
     c.rect(0, 0, PAGE_W, PAGE_H, stroke=0, fill=1)
+    c.saveState()
+    c.setFillAlpha(0.07)
+    c.setFillColor(TEAL)
+    c.circle(PAGE_W + 10, PAGE_H + 10, 150, stroke=0, fill=1)
+    c.setFillColor(GOLD)
+    c.circle(-20, -10, 120, stroke=0, fill=1)
+    c.restoreState()
 
 
 def _badge(c, x_center, y_center, text, color, w=110, h=34):
@@ -32,52 +70,80 @@ def _badge(c, x_center, y_center, text, color, w=110, h=34):
 
 # ---------------------------------------------------------------------------
 def page_cover(c):
-    _background(c)
+    # full-bleed dark background instead of pale cream, so the cover reads as
+    # a designed piece rather than a mostly-empty page
+    c.setFillColor(DARK)
+    c.rect(0, 0, PAGE_W, PAGE_H, stroke=0, fill=1)
+    _diamond_pattern(c, GOLD, alpha=0.06)
 
-    # decorative corner blobs (2 accents: teal + gold)
     c.saveState()
-    c.setFillAlpha(0.12)
+    c.setFillAlpha(0.16)
     c.setFillColor(TEAL)
-    c.circle(PAGE_W - 30, PAGE_H - 20, 130, stroke=0, fill=1)
+    c.circle(PAGE_W - 20, PAGE_H - 10, 150, stroke=0, fill=1)
+    c.setFillAlpha(0.12)
     c.setFillColor(GOLD)
-    c.circle(10, 60, 110, stroke=0, fill=1)
+    c.circle(0, 70, 130, stroke=0, fill=1)
     c.restoreState()
 
-    # soroban illustration card
-    card_w, card_h = 340, 220
-    card_x = (PAGE_W - card_w) / 2
-    card_y = PAGE_H - 90 - card_h
-    rounded_card(c, card_x, card_y, card_w, card_h, radius=16, fill=WHITE, stroke=HexColor("#EFE6D8"))
-    drawing = make_soroban_drawing(card_w - 40, card_h - 40, rods=7)
-    renderPDF.draw(drawing, c, card_x + 20, card_y + 20)
+    y = PAGE_H - 56
+
+    # kicker pill
+    _badge(c, PAGE_W / 2, y, C.COVER_TAGLINE, GOLD, w=130, h=28)
+    y -= 50
 
     # title
-    title_y = card_y - 46
-    lines = wrap_arabic(C.TITLE, "Cairo-Black", 27, CONTENT_W - 20)
-    c.setFillColor(DARK)
+    lines = wrap_arabic(C.TITLE, "Cairo-Black", 28, CONTENT_W - 20)
     for line in lines:
-        draw_ar_center(c, line, PAGE_W / 2, title_y, "Cairo-Black", 27, DARK)
-        title_y -= 34
+        draw_ar_center(c, line, PAGE_W / 2, y, "Cairo-Black", 28, WHITE)
+        y -= 35
 
     # subtitle
-    subtitle_y = title_y - 12
-    draw_ar_center(c, C.SUBTITLE, PAGE_W / 2, subtitle_y, "Cairo-SemiBold", 14, TEAL)
+    y -= 6
+    draw_ar_center(c, C.SUBTITLE, PAGE_W / 2, y, "Cairo-SemiBold", 13.5, LIGHT_TEAL)
+    y -= 38
+
+    # soroban illustration card
+    card_w, card_h = 320, 200
+    card_x = (PAGE_W - card_w) / 2
+    card_y = y - card_h
+    rounded_card(c, card_x, card_y, card_w, card_h, radius=16, fill=WHITE, stroke=None)
+    drawing = make_soroban_drawing(card_w - 40, card_h - 40, rods=7)
+    renderPDF.draw(drawing, c, card_x + 20, card_y + 20)
+    y = card_y - 30
+
+    # quick feature highlights, pulled from the benefits list so the cover
+    # carries real content instead of empty space
+    for benefit in C.BENEFITS[:3]:
+        c.setFillColor(GOLD)
+        c.circle(RIGHT - 10, y - 4, 4, stroke=0, fill=1)
+        draw_ar_right(c, benefit, RIGHT - 24, y - 8, "Cairo-SemiBold", 12.5, WHITE)
+        y -= 26
+
+    y -= 14
+
+    # level cards
+    card_w = (CONTENT_W - 24) / 3
+    card_h = 88
+    colors = [GOLD, CORAL, TEAL]
+    card_y = y - card_h
+    for i, level in enumerate(C.LEVELS):
+        cx0 = LEFT + i * (card_w + 12)
+        rounded_card(c, cx0, card_y, card_w, card_h, radius=14, fill=colors[i], stroke=None)
+        draw_ar_center(c, C.LEVEL_ORDINALS[i], cx0 + card_w / 2, card_y + card_h - 22, "Cairo-Bold", 10.5, WHITE)
+        draw_ar_center(c, level, cx0 + card_w / 2, card_y + card_h - 43, "Cairo-Black", 14.5, WHITE)
+        mini = make_soroban_drawing(card_w - 28, 20, rods=4)
+        renderPDF.draw(mini, c, cx0 + 14, card_y + 10)
+    y = card_y - 28
 
     # author
-    author_y = subtitle_y - 26
-    draw_ar_center(c, f"تأليف: {C.AUTHOR_NAME}", PAGE_W / 2, author_y, "Cairo", 12.5, GRAY)
+    draw_ar_center(c, f"تأليف: {C.AUTHOR_NAME}", PAGE_W / 2, y, "Cairo", 12.5, LIGHT_GRAY)
 
-    # level badges
-    badge_y = 96
-    spacing = 130
-    colors = [GOLD, CORAL, TEAL]
-    start_x = PAGE_W / 2 - spacing
-    for i, level in enumerate(C.LEVELS):
-        _badge(c, start_x + i * spacing, badge_y, level, colors[i])
-
-    c.setFillColor(GRAY)
+    c.setStrokeColor(GOLD)
+    c.setLineWidth(1.4)
+    c.line(PAGE_W / 2 - 70, 42, PAGE_W / 2 + 70, 42)
+    c.setFillColor(LIGHT_GRAY)
     c.setFont("Cairo", 9.5)
-    c.drawCentredString(PAGE_W / 2, 46, ar("السوروبان للأطفال • سلسلة الحساب الذهني"))
+    c.drawCentredString(PAGE_W / 2, 26, ar("السوروبان للأطفال • سلسلة الحساب الذهني"))
 
 
 # ---------------------------------------------------------------------------
@@ -160,9 +226,61 @@ def _step_icon(c, kind, cx, cy, color):
     c.restoreState()
 
 
+def _posture_card(c, x, y_top, w, h, correct, label, points, accent):
+    rounded_card(c, x, y_top - h, w, h, radius=16, fill=WHITE, stroke=accent, stroke_width=1.6)
+
+    draw_ar_right(c, label, x + w - 18, y_top - 26, "Cairo-Bold", 14.5, accent)
+
+    drawing_w, drawing_h = 230, h - 70
+    drawing_x = x + (w - drawing_w) / 2
+    drawing_y = y_top - h + 40
+    drawing = make_posture_drawing(drawing_w, drawing_h, correct=correct)
+    renderPDF.draw(drawing, c, drawing_x, drawing_y)
+
+    chip_y = drawing_y - 16
+    chip_h = 24
+    n = len(points)
+    gap = 8
+    total_w = w - 32
+    chip_w = (total_w - gap * (n - 1)) / n
+    cx0 = x + 16
+    for point in points:
+        _badge(c, cx0 + chip_w / 2, chip_y, point, accent, w=chip_w, h=chip_h)
+        cx0 += chip_w + gap
+
+
+def page_sitting(c):
+    _background(c)
+    y = _page_header(c, C.SITTING_TITLE, accent=TEAL)
+
+    # mascot + speech bubble
+    mascot_w, mascot_h = 80, 92
+    mascot_x = LEFT
+    mascot_y = y - mascot_h + 10
+    drawing = make_mascot_drawing(mascot_w, mascot_h)
+    renderPDF.draw(drawing, c, mascot_x, mascot_y)
+
+    bubble_x = mascot_x + mascot_w + 14
+    bubble_w = CONTENT_W - mascot_w - 14
+    bubble_h = 46
+    bubble_y = mascot_y + mascot_h - bubble_h - 6
+    rounded_card(c, bubble_x, bubble_y, bubble_w, bubble_h, radius=14, fill=WHITE, stroke=CARD_STROKE)
+    draw_ar_center(c, C.SITTING_INTRO, bubble_x + bubble_w / 2, bubble_y + bubble_h / 2 - 4, "Cairo-SemiBold", 12.5, DARK)
+
+    card_top = mascot_y - 26
+    card_w = CONTENT_W
+    card_h = 320
+    _posture_card(c, LEFT, card_top, card_w, card_h, True, C.CORRECT_LABEL, C.CORRECT_POINTS, TEAL)
+
+    card_top2 = card_top - card_h - 20
+    card_h2 = 300
+    _posture_card(c, LEFT, card_top2, card_w, card_h2, False, C.INCORRECT_LABEL, C.INCORRECT_POINTS, CORAL)
+
+
+# ---------------------------------------------------------------------------
 def page_posture(c):
     _background(c)
-    y = _page_header(c, C.POSTURE_TITLE, accent=CORAL)
+    y = _page_header(c, C.USAGE_TITLE, accent=CORAL)
 
     # mascot + speech bubble
     mascot_w, mascot_h = 110, 130
@@ -182,9 +300,9 @@ def page_posture(c):
         draw_ar_center(c, line, bubble_x + bubble_w / 2, ty, "Cairo-SemiBold", 13, DARK)
         ty -= 18
 
-    grid_top = mascot_y - 24
+    grid_top = mascot_y - 30
     card_w = (CONTENT_W - 16) / 2
-    card_h = 118
+    card_h = 168
     gap_x, gap_y = 16, 16
     icons = ["sit", "pencil", "hands", "focus"]
     colors = [TEAL, CORAL, TEAL, CORAL]
@@ -198,19 +316,29 @@ def page_posture(c):
 
         # step number badge
         c.setFillColor(colors[idx])
-        c.circle(cx0 + card_w - 22, cy0 + card_h - 22, 14, stroke=0, fill=1)
+        c.circle(cx0 + card_w - 26, cy0 + card_h - 30, 16, stroke=0, fill=1)
         c.setFillColor(WHITE)
-        c.setFont("Cairo-Bold", 13)
-        c.drawCentredString(cx0 + card_w - 22, cy0 + card_h - 26.5, str(idx + 1))
+        c.setFont("Cairo-Bold", 14)
+        c.drawCentredString(cx0 + card_w - 26, cy0 + card_h - 34.5, str(idx + 1))
 
-        _step_icon(c, icons[idx], cx0 + 26, cy0 + card_h - 24, colors[idx])
+        _step_icon(c, icons[idx], cx0 + 30, cy0 + card_h - 30, colors[idx])
 
-        draw_ar_right(c, step_title, cx0 + card_w - 16, cy0 + card_h - 48, "Cairo-Bold", 13.5, DARK)
-        wrapped_desc = wrap_arabic(step_desc, "Cairo", 10.8, card_w - 32)
-        ty = cy0 + card_h - 66
+        draw_ar_right(c, step_title, cx0 + card_w - 18, cy0 + card_h - 68, "Cairo-Bold", 14.5, DARK)
+        wrapped_desc = wrap_arabic(step_desc, "Cairo", 11.5, card_w - 36)
+        ty = cy0 + card_h - 88
         for line in wrapped_desc:
-            draw_ar_right(c, line, cx0 + card_w - 16, ty, "Cairo", 10.8, GRAY)
-            ty -= 15
+            draw_ar_right(c, line, cx0 + card_w - 18, ty, "Cairo", 11.5, GRAY)
+            ty -= 17
+
+    # closing tip card — fills the remaining space with an encouraging note
+    tip_y_top = grid_top - 2 * (card_h + gap_y) - 14
+    tip_h = 70
+    rounded_card(c, LEFT, tip_y_top - tip_h, CONTENT_W, tip_h, radius=14, fill=GOLD, stroke=None)
+    wrapped_tip = wrap_arabic(C.USAGE_TIP, "Cairo-SemiBold", 13, CONTENT_W - 40)
+    ty = tip_y_top - tip_h / 2 + (len(wrapped_tip) - 1) * 9
+    for line in wrapped_tip:
+        draw_ar_center(c, line, PAGE_W / 2, ty, "Cairo-SemiBold", 13, WHITE)
+        ty -= 18
 
 
 # ---------------------------------------------------------------------------

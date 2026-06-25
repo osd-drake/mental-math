@@ -1,6 +1,6 @@
 """Vector illustrations: soroban abacus + mascot, built from primitive shapes."""
 import math
-from reportlab.graphics.shapes import Drawing, Rect, Line, Circle, Ellipse, PolyLine
+from reportlab.graphics.shapes import Drawing, Rect, Line, Circle, Ellipse, PolyLine, Group
 from reportlab.lib.colors import HexColor
 
 WOOD = HexColor("#C98A4B")
@@ -9,6 +9,12 @@ DECK = HexColor("#FBEBD6")
 BEAD_GOLD = HexColor("#F4A623")
 BEAD_TEAL = HexColor("#2C9B8A")
 ROD_COLOR = HexColor("#7A4A23")
+
+CORAL = HexColor("#E8614A")
+DARK = HexColor("#1A1A2E")
+SKIN = HexColor("#F0C9A0")
+CHAIR_COLOR = HexColor("#3A3A55")
+WHITE = HexColor("#FFFFFF")
 
 
 def soroban_geometry(width, height, rods=7):
@@ -129,5 +135,71 @@ def make_mascot_drawing(width=160, height=180, body_color=None, cheek_color=None
     # little antenna with star tip
     d.add(Line(cx, cy + 46, cx, cy + 60, strokeColor=HexColor("#1A1A2E"), strokeWidth=2))
     d.add(Circle(cx, cy + 64, 5, fillColor=HexColor("#F4A623"), strokeColor=None))
+
+    return d
+
+
+def make_posture_drawing(width=230, height=250, correct=True):
+    """Side-view pictogram of a child sitting at a desk: upright (correct=True)
+    vs. slouched over the desk (correct=False). A check/X badge marks which."""
+    accent = BEAD_TEAL if correct else CORAL
+    d = Drawing(width, height)
+
+    floor_y = 16
+    hip_x = width * 0.38
+    seat_y = floor_y + 46
+
+    d.add(Line(8, floor_y, width - 8, floor_y, strokeColor=HexColor("#D8CDBB"), strokeWidth=1.5))
+
+    # chair: legs, seat, backrest
+    backrest_x = hip_x - 32
+    d.add(Rect(backrest_x, floor_y, 8, seat_y - floor_y, fillColor=DARK, strokeColor=None))
+    d.add(Rect(hip_x + 22, floor_y, 8, seat_y - floor_y, fillColor=DARK, strokeColor=None))
+    d.add(Rect(backrest_x - 4, seat_y, 64, 9, rx=3, ry=3, fillColor=CHAIR_COLOR, strokeColor=None))
+    d.add(Rect(backrest_x, seat_y + 9, 8, 80, rx=3, ry=3, fillColor=CHAIR_COLOR, strokeColor=None))
+
+    # desk
+    desk_x0 = hip_x + 50
+    desk_w = 80
+    desk_top = seat_y + 9 + 58
+    d.add(Rect(desk_x0, floor_y, 7, desk_top - floor_y, fillColor=WOOD, strokeColor=None))
+    d.add(Rect(desk_x0 + desk_w - 7, floor_y, 7, desk_top - floor_y, fillColor=WOOD, strokeColor=None))
+    d.add(Rect(desk_x0 - 5, desk_top, desk_w + 10, 9, rx=3, ry=3, fillColor=WOOD, strokeColor=WOOD_DARK, strokeWidth=1))
+
+    # feet: flat on the floor when correct, lifted/tucked back when not
+    if correct:
+        d.add(Ellipse(hip_x + 6, floor_y + 4, 11, 5, fillColor=accent, strokeColor=None))
+        d.add(Ellipse(hip_x + 24, floor_y + 4, 11, 5, fillColor=accent, strokeColor=None))
+    else:
+        d.add(Ellipse(hip_x - 6, floor_y + 7, 9, 4.5, fillColor=accent, strokeColor=None))
+        d.add(Ellipse(hip_x + 8, floor_y + 9, 9, 4.5, fillColor=accent, strokeColor=None))
+
+    # torso + head + arm, built around the hip pivot so it can rotate to slouch
+    hip_y = seat_y + 9
+    local_desk_x = desk_x0 - hip_x
+    local_desk_top = desk_top - hip_y
+
+    torso = Rect(-15, 0, 30, 70, rx=13, ry=13, fillColor=accent, strokeColor=DARK, strokeWidth=1.3)
+    spine = Line(0, 6, 0, 64, strokeColor=WHITE, strokeWidth=1, strokeOpacity=0.35)
+    arm = Line(8, 48, local_desk_x + 12, local_desk_top + 4, strokeColor=accent, strokeWidth=7, strokeLineCap=1)
+    head_cy = 70 + 15
+    head = Circle(2, head_cy, 13, fillColor=SKIN, strokeColor=DARK, strokeWidth=1.3)
+    eye = Circle(6, head_cy + 1, 1.6, fillColor=DARK, strokeColor=None)
+    smile = PolyLine([0, head_cy - 5, 4, head_cy - 7, 8, head_cy - 5.5], strokeColor=DARK, strokeWidth=1.1)
+
+    g = Group(torso, spine, arm, head, eye, smile)
+    g.translate(hip_x, hip_y)
+    g.rotate(0 if correct else -26)
+    d.add(g)
+
+    # check / X badge, fixed in the top corner (not part of the rotated group)
+    bx, by = width - 24, height - 22
+    d.add(Circle(bx, by, 15, fillColor=accent, strokeColor=None))
+    if correct:
+        d.add(PolyLine([bx - 6, by, bx - 2, by - 5, bx + 7, by + 6],
+                        strokeColor=WHITE, strokeWidth=2.6, strokeLineCap=1, strokeLineJoin=1))
+    else:
+        d.add(Line(bx - 6, by - 6, bx + 6, by + 6, strokeColor=WHITE, strokeWidth=2.6, strokeLineCap=1))
+        d.add(Line(bx - 6, by + 6, bx + 6, by - 6, strokeColor=WHITE, strokeWidth=2.6, strokeLineCap=1))
 
     return d
