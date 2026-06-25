@@ -2,7 +2,10 @@ import os
 from reportlab.pdfgen import canvas
 
 from book.utils import register_fonts, PAGE_W, PAGE_H, BASE_DIR
-from book.pages import page_cover, page_intro, page_sitting, page_posture, page_parts
+from book.pages import (
+    page_cover, page_intro, page_parts, page_sitting, page_posture,
+    page_levels_intro, page_level,
+)
 
 
 def build(output_path=None):
@@ -12,7 +15,18 @@ def build(output_path=None):
     c = canvas.Canvas(output_path, pagesize=(PAGE_W, PAGE_H))
     c.setTitle("الحساب الذهني باستخدام السوروبان")
 
-    for page_fn in (page_cover, page_intro, page_sitting, page_posture, page_parts):
+    pages = [
+        page_cover,
+        page_intro,
+        page_parts,
+        page_sitting,
+        page_posture,
+        page_levels_intro,
+        lambda cv: page_level(cv, 0),
+        lambda cv: page_level(cv, 1),
+        lambda cv: page_level(cv, 2),
+    ]
+    for page_fn in pages:
         page_fn(c)
         c.showPage()
 

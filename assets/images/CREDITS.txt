@@ -1,0 +1,20 @@
+Image credits / licensing (verify before commercial print use)
+================================================================
+
+soroban_photo.jpg  (cover hero + parts reference)
+  Source : Wikimedia Commons — "Soroban (Abacus).JPG"
+  URL    : https://commons.wikimedia.org/wiki/File:Soroban_(Abacus).JPG
+  License: CC BY-SA 3.0  (attribution + share-alike required)
+
+soroban_desk.jpg  (intro "what is the soroban?" page)
+  Source : Wikimedia Commons — "そろばん (5370066106).jpg"
+  URL    : https://commons.wikimedia.org/wiki/File:%E3%81%9D%E3%82%8D%E3%81%B0%E3%82%93_(5370066106).jpg
+  License: CC BY 2.0  (attribution required)
+
+NOTE: CC BY-SA / CC BY require visible attribution to the author and a link to
+the license. Add a small credits line on the book's colophon/back page before
+printing, or replace these with images you own.
+
+Sitting-posture artwork: drawn in-house (vector illustration) — no third-party
+license needed. No clean, modern, commercially-licensed "correct vs incorrect
+child posture" photo was available; swap in your own photo any time.

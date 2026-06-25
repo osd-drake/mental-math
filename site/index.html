@@ -9,18 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --teal: #2C9B8A;
-    --coral: #E8614A;
-    --gold: #F4A623;
-    --dark: #1A1A2E;
-    --bg: #FFFDF9;
+    --navy: #1C3D5F;
+    --navy-dark: #142C45;
+    --amber: #C68A3E;
+    --teal: #2E8B7F;
+    --cream: #F3ECDE;
+    --sand: #E7DCC6;
+    --ink: #142C45;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: 'Cairo', sans-serif;
-    background: var(--bg);
-    color: var(--dark);
+    background: var(--cream);
+    color: var(--ink);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -29,51 +31,69 @@
   }
   .card {
     background: #fff;
-    border: 1px solid #EFE6D8;
-    border-radius: 16px;
-    max-width: 560px;
+    border: 1px solid var(--sand);
+    border-radius: 18px;
+    max-width: 580px;
     width: 100%;
-    padding: 40px 36px;
-    text-align: center;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    overflow: hidden;
+    box-shadow: 0 14px 36px rgba(20,44,69,0.12);
   }
-  h1 { font-size: 1.7rem; font-weight: 900; margin: 0 0 8px; }
-  p.subtitle { color: var(--teal); font-weight: 600; margin: 0 0 24px; }
-  .badges { display: flex; gap: 10px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
-  .badge { padding: 8px 18px; border-radius: 999px; color: #fff; font-weight: 700; font-size: 0.9rem; }
-  .badge.gold { background: var(--gold); }
-  .badge.coral { background: var(--coral); }
-  .badge.teal { background: var(--teal); }
+  .head {
+    background: var(--navy);
+    color: #fff;
+    padding: 34px 30px 28px;
+    text-align: center;
+  }
+  .kicker { color: var(--amber); font-weight: 700; letter-spacing: 1px; margin: 0 0 6px; }
+  h1 { font-size: 1.7rem; font-weight: 900; margin: 0; line-height: 1.4; }
+  .body { padding: 28px 30px 32px; text-align: center; }
+  .author { font-weight: 700; color: var(--navy); margin: 0 0 4px; }
+  .author small { display: block; font-weight: 400; color: #5B5B6B; font-size: 0.82rem; margin-top: 6px; line-height: 1.7; }
+  .levels { display: flex; gap: 10px; justify-content: center; margin: 22px 0 26px; flex-wrap: wrap; }
+  .level { flex: 1 1 150px; border: 1px solid var(--sand); border-radius: 12px; overflow: hidden; }
+  .level .t { color: #fff; font-weight: 700; font-size: 0.82rem; padding: 7px 6px; }
+  .level .d { font-size: 0.72rem; color: var(--navy); padding: 9px 8px; line-height: 1.6; }
+  .level.l1 .t { background: var(--amber); }
+  .level.l2 .t { background: var(--teal); }
+  .level.l3 .t { background: var(--navy); }
   .downloads { display: flex; flex-direction: column; gap: 12px; }
   a.btn {
-    display: block;
-    padding: 14px 20px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 1rem;
+    display: block; padding: 14px 20px; border-radius: 12px;
+    text-decoration: none; font-weight: 700; font-size: 1rem;
     transition: transform 0.15s ease;
   }
   a.btn:hover { transform: translateY(-2px); }
-  a.btn.pdf { background: var(--teal); color: #fff; }
-  a.btn.docx { background: var(--coral); color: #fff; }
-  footer { margin-top: 28px; font-size: 0.8rem; color: #5B5B6B; }
+  a.btn.pdf { background: var(--navy); color: #fff; }
+  a.btn.docx { background: var(--amber); color: #fff; }
+  footer { margin-top: 26px; font-size: 0.8rem; color: #5B5B6B; }
 </style>
 </head>
 <body>
   <div class="card">
-    <h1>الحساب الذهني باستخدام السوروبان</h1>
-    <p class="subtitle">دليل ممتع لتعلم الحساب الذهني للأطفال من 6 إلى 10 سنوات</p>
-    <div class="badges">
-      <span class="badge gold">مبتدئ</span>
-      <span class="badge coral">متوسط</span>
-      <span class="badge teal">متقدم</span>
+    <div class="head">
+      <p class="kicker">كتاب تعليمي</p>
+      <h1>الحساب الذهني باستخدام السوروبان</h1>
     </div>
-    <div class="downloads">
-      <a class="btn pdf" href="soroban_book.pdf" download>تحميل PDF</a>
-      <a class="btn docx" href="soroban_book.docx" download>تحميل Word (DOCX)</a>
+    <div class="body">
+      <p class="author">
+        تأليف: المهندسة رفل ثامر إبراهيم الطائي
+        <small>
+          مدرّبة دولية معتمدة في السوروبان<br>
+          عضو الاتحاد الدولي للسوروبان والرياضيات الذهنية<br>
+          عضو نقابة المدرّبين العراقيين
+        </small>
+      </p>
+      <div class="levels">
+        <div class="level l1"><div class="t">المستوى الأول</div><div class="d">جمع وطرح الأعداد الأولية من ١ إلى ٩</div></div>
+        <div class="level l2"><div class="t">المستوى الثاني</div><div class="d">طرح وجمع العشرات من ١٠ إلى ٥٠</div></div>
+        <div class="level l3"><div class="t">المستوى الثالث</div><div class="d">جمع وطرح الأعداد من ٥٠ إلى ٩٩</div></div>
+      </div>
+      <div class="downloads">
+        <a class="btn pdf" href="soroban_book.pdf" download>تحميل الكتاب PDF</a>
+        <a class="btn docx" href="soroban_book.docx" download>تحميل نسخة Word (DOCX)</a>
+      </div>
+      <footer>كتاب تعليمي • سلسلة الحساب الذهني</footer>
     </div>
-    <footer>السوروبان للأطفال • سلسلة الحساب الذهني</footer>
   </div>
 </body>
 </html>

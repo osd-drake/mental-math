@@ -11,13 +11,29 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONT_DIR = os.path.join(BASE_DIR, "assets", "fonts")
 IMAGE_DIR = os.path.join(BASE_DIR, "assets", "images")
 
-# Design system
-TEAL = HexColor("#2C9B8A")
-CORAL = HexColor("#E8614A")
-GOLD = HexColor("#F4A623")
-DARK = HexColor("#1A1A2E")
-BG = HexColor("#FFFDF9")
+# Design system — navy / silver / cream palette (matches the printed-cover style)
+NAVY = HexColor("#1C3D5F")        # primary brand color
+NAVY_DARK = HexColor("#142C45")   # deep shadow navy
+NAVY_LIGHT = HexColor("#3E6488")  # lighter navy for secondary text
+SILVER = HexColor("#AEB8C2")      # metallic accent / soft lines
+AMBER = HexColor("#C68A3E")       # warm wood accent (ties to the natural soroban)
+CREAM = HexColor("#F3ECDE")       # page background
+SAND = HexColor("#E7DCC6")        # slightly darker cream for cards/dividers
 WHITE = HexColor("#FFFFFF")
+
+# Backwards-compatible aliases so existing references keep working while the
+# palette migrates. DARK -> navy, BG -> cream, GOLD -> amber, TEAL/CORAL kept
+# as semantic "correct / incorrect" accents but retuned toward the new palette.
+DARK = NAVY
+BG = CREAM
+GOLD = AMBER
+TEAL = HexColor("#2E8B7F")        # "correct" green-teal
+CORAL = HexColor("#D8593F")       # "incorrect" warm red
+
+# Pre-blended light tints (navy/amber ~10% over cream). Used for soft background
+# accents because reportlab's setFillAlpha is ignored by the renderer here.
+NAVY_TINT = HexColor("#DDD9CF")
+AMBER_TINT = HexColor("#EFE2CB")
 
 PAGE_W, PAGE_H = 595.27, 841.89  # A4 in points
 
