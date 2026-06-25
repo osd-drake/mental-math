@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الحساب الذهني باستخدام السوروبان</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #2C9B8A;
+    --coral: #E8614A;
+    --gold: #F4A623;
+    --dark: #1A1A2E;
+    --bg: #FFFDF9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #EFE6D8;
+    border-radius: 16px;
+    max-width: 560px;
+    width: 100%;
+    padding: 40px 36px;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+  }
+  h1 { font-size: 1.7rem; font-weight: 900; margin: 0 0 8px; }
+  p.subtitle { color: var(--teal); font-weight: 600; margin: 0 0 24px; }
+  .badges { display: flex; gap: 10px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .badge { padding: 8px 18px; border-radius: 999px; color: #fff; font-weight: 700; font-size: 0.9rem; }
+  .badge.gold { background: var(--gold); }
+  .badge.coral { background: var(--coral); }
+  .badge.teal { background: var(--teal); }
+  .downloads { display: flex; flex-direction: column; gap: 12px; }
+  a.btn {
+    display: block;
+    padding: 14px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: transform 0.15s ease;
+  }
+  a.btn:hover { transform: translateY(-2px); }
+  a.btn.pdf { background: var(--teal); color: #fff; }
+  a.btn.docx { background: var(--coral); color: #fff; }
+  footer { margin-top: 28px; font-size: 0.8rem; color: #5B5B6B; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>الحساب الذهني باستخدام السوروبان</h1>
+    <p class="subtitle">دليل ممتع لتعلم الحساب الذهني للأطفال من 6 إلى 10 سنوات</p>
+    <div class="badges">
+      <span class="badge gold">مبتدئ</span>
+      <span class="badge coral">متوسط</span>
+      <span class="badge teal">متقدم</span>
+    </div>
+    <div class="downloads">
+      <a class="btn pdf" href="soroban_book.pdf" download>تحميل PDF</a>
+      <a class="btn docx" href="soroban_book.docx" download>تحميل Word (DOCX)</a>
+    </div>
+    <footer>السوروبان للأطفال • سلسلة الحساب الذهني</footer>
+  </div>
+</body>
+</html>
