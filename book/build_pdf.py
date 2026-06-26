@@ -4,7 +4,7 @@ from reportlab.pdfgen import canvas
 from book.utils import register_fonts, PAGE_W, PAGE_H, BASE_DIR
 from book.pages import (
     page_cover, page_intro, page_parts, page_sitting, page_posture,
-    page_levels_intro, page_level,
+    page_levels_intro, page_level, draw_page_number,
 )
 
 
@@ -26,8 +26,12 @@ def build(output_path=None):
         lambda cv: page_level(cv, 1),
         lambda cv: page_level(cv, 2),
     ]
-    for page_fn in pages:
+    page_num = 1
+    for i, page_fn in enumerate(pages):
         page_fn(c)
+        if i > 0:  # no footer number on the cover
+            draw_page_number(c, page_num)
+            page_num += 1
         c.showPage()
 
     c.save()

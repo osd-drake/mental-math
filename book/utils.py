@@ -20,6 +20,7 @@ AMBER = HexColor("#C68A3E")       # warm wood accent (ties to the natural soroba
 CREAM = HexColor("#F3ECDE")       # page background
 SAND = HexColor("#E7DCC6")        # slightly darker cream for cards/dividers
 WHITE = HexColor("#FFFFFF")
+BLACK = HexColor("#000000")       # body text + structure on interior (print) pages
 
 # Backwards-compatible aliases so existing references keep working while the
 # palette migrates. DARK -> navy, BG -> cream, GOLD -> amber, TEAL/CORAL kept

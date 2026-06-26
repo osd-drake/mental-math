@@ -1,6 +1,6 @@
-"""Vector illustrations: soroban abacus + mascot, built from primitive shapes."""
+"""Vector illustrations: soroban abacus + posture diagrams, built from primitive shapes."""
 import math
-from reportlab.graphics.shapes import Drawing, Rect, Line, Circle, Ellipse, PolyLine, Group
+from reportlab.graphics.shapes import Drawing, Rect, Line, Circle, Ellipse, PolyLine, Group, String
 from reportlab.lib.colors import HexColor
 
 WOOD = HexColor("#C98A4B")
@@ -20,11 +20,6 @@ SAND = HexColor("#E7DCC6")
 
 CORAL = HexColor("#D8593F")
 TEAL = HexColor("#2E8B7F")
-DARK = HexColor("#1A1A2E")
-SKIN = HexColor("#F2CBA3")
-HAIR = HexColor("#5A3B22")
-SHIRT = HexColor("#3E6488")
-CHAIR_COLOR = HexColor("#9AA5AF")
 WHITE = HexColor("#FFFFFF")
 
 
@@ -155,129 +150,108 @@ def make_digit_drawing(value, width=54, height=150, frame=True):
     return d
 
 
-def make_mascot_drawing(width=160, height=180, body_color=None, cheek_color=None):
-    """A friendly round bead-creature mascot: body, eyes, smile, cheeks, little arms/feet."""
-    body_color = body_color or HexColor("#2C9B8A")
-    cheek_color = cheek_color or HexColor("#E8614A")
-    d = Drawing(width, height)
-    cx, cy = width / 2, height / 2 - 8
-
-    # feet
-    d.add(Ellipse(cx - 22, cy - 48, 14, 8, fillColor=body_color, strokeColor=None))
-    d.add(Ellipse(cx + 22, cy - 48, 14, 8, fillColor=body_color, strokeColor=None))
-
-    # arms
-    d.add(Ellipse(cx - 46, cy - 5, 11, 6, fillColor=body_color, strokeColor=None))
-    d.add(Ellipse(cx + 46, cy - 5, 11, 6, fillColor=body_color, strokeColor=None))
-
-    # body (round bead shape)
-    d.add(Circle(cx, cy, 46, fillColor=body_color, strokeColor=HexColor("#1A1A2E"), strokeWidth=1.4))
-
-    # cheeks
-    d.add(Circle(cx - 22, cy - 6, 7, fillColor=cheek_color, strokeColor=None))
-    d.add(Circle(cx + 22, cy - 6, 7, fillColor=cheek_color, strokeColor=None))
-
-    # eyes (white + pupil)
-    for ex in (-16, 16):
-        d.add(Circle(cx + ex, cy + 10, 11, fillColor=HexColor("#FFFFFF"), strokeColor=HexColor("#1A1A2E"), strokeWidth=1))
-        d.add(Circle(cx + ex + 2, cy + 8, 5, fillColor=HexColor("#1A1A2E"), strokeColor=None))
-
-    # smile (arc approximated as a polyline)
-    smile_pts = []
-    for deg in range(200, 341, 10):
-        rad = math.radians(deg)
-        smile_pts.extend([cx + 16 * math.cos(rad), cy - 6 + 16 * math.sin(rad)])
-    d.add(PolyLine(smile_pts, strokeColor=HexColor("#1A1A2E"), strokeWidth=2.4, strokeLineCap=1))
-
-    # little antenna with star tip
-    d.add(Line(cx, cy + 46, cx, cy + 60, strokeColor=HexColor("#1A1A2E"), strokeWidth=2))
-    d.add(Circle(cx, cy + 64, 5, fillColor=HexColor("#F4A623"), strokeColor=None))
-
-    return d
-
-
-def make_posture_drawing(width=240, height=250, correct=True):
-    """Flat side-view illustration of a child sitting at a desk, facing right:
-    upright & relaxed (correct=True) vs. hunched over the desk (correct=False).
-    A green check / red X badge marks which is which."""
+def make_posture_drawing(width=230, height=270, variant="correct1"):
+    """Line-art (outline-only) side-view diagram of a child at a desk, used on
+    the sitting-posture page. variant:
+      - 'correct1'  : back straight, elbows resting on the desk, eye-to-paper
+                       distance marked (~25-45cm)
+      - 'correct2'  : back resting on the chair, shoulders relaxed, arms at rest
+      - 'incorrect' : hunched forward, eye-to-paper distance too short (~8-10cm)
+    Drawn almost entirely with thin strokes (not flat color fills) to keep the
+    printed page's ink coverage — and cost — low. Only the small correct/incorrect
+    badge and the measurement callout carry color."""
+    correct = variant != "incorrect"
     accent = TEAL if correct else CORAL
     d = Drawing(width, height)
 
-    floor_y = 28
-    hip_x = width * 0.40
-    seat_top = floor_y + 66          # height of the chair seat
-    hip_y = seat_top + 12            # where the body pivots
+    floor_y = 24
+    hip_x = width * 0.42
+    seat_top = floor_y + 58
+    hip_y = seat_top + 10
 
     # ground line
-    d.add(Line(12, floor_y, width - 12, floor_y, strokeColor=SILVER, strokeWidth=2.4, strokeLineCap=1))
+    d.add(Line(10, floor_y, width - 10, floor_y, strokeColor=NAVY_DARK, strokeWidth=1.6, strokeLineCap=1))
 
-    # --- chair (behind / under the child) ---
-    seat_x = hip_x - 36
-    seat_w = 64
-    d.add(Rect(seat_x + 6, floor_y, 6, seat_top - floor_y, fillColor=CHAIR_COLOR, strokeColor=None))
-    d.add(Rect(seat_x + seat_w - 12, floor_y, 6, seat_top - floor_y, fillColor=CHAIR_COLOR, strokeColor=None))
-    d.add(Rect(seat_x, seat_top, seat_w, 9, rx=3, ry=3, fillColor=CHAIR_COLOR, strokeColor=None))
-    d.add(Rect(seat_x, seat_top + 9, 7, 64, rx=3, ry=3, fillColor=CHAIR_COLOR, strokeColor=None))  # backrest
+    # --- chair: outline only ---
+    seat_x = hip_x - 32
+    seat_w = 58
+    d.add(Line(seat_x + 5, floor_y, seat_x + 5, seat_top, strokeColor=NAVY_DARK, strokeWidth=1.3))
+    d.add(Line(seat_x + seat_w - 5, floor_y, seat_x + seat_w - 5, seat_top, strokeColor=NAVY_DARK, strokeWidth=1.3))
+    d.add(Rect(seat_x, seat_top, seat_w, 7, rx=3, ry=3, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=1.3))
+    d.add(Rect(seat_x + 2, seat_top + 7, 6, 58, rx=3, ry=3, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=1.3))
 
-    # --- desk (in front, to the right) ---
-    desk_x0 = hip_x + 46
-    desk_w = width - desk_x0 - 14
-    desk_top = seat_top + 44
-    d.add(Rect(desk_x0, floor_y, 6, desk_top - floor_y, fillColor=WOOD_DARK, strokeColor=None))
-    d.add(Rect(desk_x0 + desk_w - 6, floor_y, 6, desk_top - floor_y, fillColor=WOOD_DARK, strokeColor=None))
-    d.add(Rect(desk_x0 - 6, desk_top, desk_w + 12, 9, rx=3, ry=3, fillColor=WOOD, strokeColor=None))
-    # a little soroban resting on the desk
-    d.add(Rect(desk_x0 + 6, desk_top + 9, desk_w - 24, 7, rx=2, ry=2, fillColor=NAVY, strokeColor=None))
+    # --- desk: outline only; pulled in close for the incorrect posture ---
+    desk_gap = 14 if variant == "incorrect" else 32
+    desk_x0 = hip_x + desk_gap
+    desk_w = width - desk_x0 - 12
+    desk_top = seat_top + 38
+    d.add(Line(desk_x0, floor_y, desk_x0, desk_top, strokeColor=NAVY_DARK, strokeWidth=1.3))
+    d.add(Line(desk_x0 + desk_w, floor_y, desk_x0 + desk_w, desk_top, strokeColor=NAVY_DARK, strokeWidth=1.3))
+    d.add(Rect(desk_x0 - 6, desk_top, desk_w + 12, 6, rx=2, ry=2, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=1.3))
+    paper_x = desk_x0 + 8
+    d.add(Rect(paper_x, desk_top + 6, 26, 3, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=0.9))
 
-    PANTS = NAVY
-    # --- legs (sitting): thigh on the seat, shin down to the floor ---
-    knee_x = hip_x + 30
-    d.add(Rect(hip_x - 8, seat_top + 9, knee_x - hip_x + 14, 13, rx=6, ry=6, fillColor=PANTS, strokeColor=None))
-    if correct:
-        # shin vertical, foot flat on floor
-        d.add(Rect(knee_x + 0, floor_y + 3, 13, seat_top + 12 - floor_y, rx=6, ry=6, fillColor=PANTS, strokeColor=None))
-        d.add(Rect(knee_x - 2, floor_y, 24, 8, rx=4, ry=4, fillColor=NAVY_DARK, strokeColor=None))
-    else:
-        # foot dangling / tucked back under the chair (not grounded)
-        d.add(Rect(hip_x - 2, floor_y + 20, 13, seat_top - floor_y - 6, rx=6, ry=6, fillColor=PANTS, strokeColor=None))
-        d.add(Rect(hip_x - 6, floor_y + 16, 22, 8, rx=4, ry=4, fillColor=NAVY_DARK, strokeColor=None))
+    # --- legs: thigh on the seat, shin to the floor, foot flat ---
+    knee_x = hip_x + 28
+    d.add(Rect(hip_x - 7, seat_top + 7, knee_x - hip_x + 12, 11, rx=5, ry=5, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=1.3))
+    d.add(Rect(knee_x, floor_y + 2, 11, seat_top + 9 - floor_y, rx=5, ry=5, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=1.3))
+    d.add(Rect(knee_x - 2, floor_y, 20, 7, rx=3, ry=3, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=1.3))
 
     # --- body group (torso + head), pivots at the hip so it can hunch forward ---
-    lean = 0 if correct else -34  # negative = tip forward toward the desk
-    torso_h = 56
-    torso = Rect(-12, 0, 24, torso_h, rx=11, ry=11, fillColor=SHIRT, strokeColor=NAVY_DARK, strokeWidth=1.2)
-    collar = Rect(-9, torso_h - 8, 18, 8, rx=4, ry=4, fillColor=WHITE, strokeColor=None, fillOpacity=0.85)
-    neck = Rect(-4, torso_h - 4, 9, 12, fillColor=SKIN, strokeColor=None)
-    head_cy = torso_h + 22
-    hair = Circle(2, head_cy + 1, 16, fillColor=HAIR, strokeColor=None)
-    head = Circle(5, head_cy, 14, fillColor=SKIN, strokeColor=NAVY_DARK, strokeWidth=1.1)
-    fringe = Rect(-2, head_cy + 7, 16, 7, rx=3, ry=3, fillColor=HAIR, strokeColor=None)
-    eye = Circle(11, head_cy + 1, 1.8, fillColor=NAVY_DARK, strokeColor=None)
-    smile = PolyLine([8, head_cy - 6, 12, head_cy - 8, 15, head_cy - 6],
-                     strokeColor=NAVY_DARK, strokeWidth=1.2, strokeLineCap=1)
+    lean = -32 if variant == "incorrect" else 0
+    torso_h = 52
+    torso = Rect(-11, 0, 22, torso_h, rx=10, ry=10, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=1.4)
+    collar = Line(-6, torso_h - 6, 6, torso_h - 6, strokeColor=NAVY_DARK, strokeWidth=1)
+    neck = Rect(-3, torso_h - 4, 6, 9, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=1.1)
+    head_cy = torso_h + 19
+    head = Circle(3, head_cy, 13, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=1.3)
+    eye = Circle(8, head_cy + 1, 1.5, fillColor=NAVY_DARK, strokeColor=None)
+    smile = PolyLine([5, head_cy - 5, 8, head_cy - 7, 11, head_cy - 5],
+                     strokeColor=NAVY_DARK, strokeWidth=1.1, strokeLineCap=1)
 
-    g = Group(torso, collar, neck, hair, head, fringe, eye, smile)
+    g = Group(torso, collar, neck, head, eye, smile)
     g.translate(hip_x, hip_y)
     g.rotate(lean)
     d.add(g)
 
-    # --- arm: drawn in world space so it always connects shoulder -> desk ---
-    sx, sy = 8, torso_h - 8           # shoulder in local body coords
     th = math.radians(lean)
-    swx = hip_x + sx * math.cos(th) - sy * math.sin(th)
-    swy = hip_y + sx * math.sin(th) + sy * math.cos(th)
-    hand_x, hand_y = desk_x0 + 16, desk_top + 8
-    d.add(Line(swx, swy, hand_x, hand_y, strokeColor=SHIRT, strokeWidth=11, strokeLineCap=1))
-    d.add(Circle(hand_x, hand_y, 6, fillColor=SKIN, strokeColor=NAVY_DARK, strokeWidth=1))
+
+    # --- arm: only drawn reaching the desk for 'correct1' (elbows on table) and
+    # 'incorrect' (hunched over it); 'correct2' rests the arm at the side ---
+    if variant != "correct2":
+        sx, sy = 7, torso_h - 6
+        swx = hip_x + sx * math.cos(th) - sy * math.sin(th)
+        swy = hip_y + sx * math.sin(th) + sy * math.cos(th)
+        hand_x, hand_y = paper_x + 14, desk_top + 9
+        d.add(Line(swx, swy, hand_x, hand_y, strokeColor=NAVY_DARK, strokeWidth=4.5, strokeLineCap=1))
+        d.add(Circle(hand_x, hand_y, 4, fillColor=WHITE, strokeColor=NAVY_DARK, strokeWidth=1.1))
+    else:
+        sx, sy = -9, torso_h - 12
+        swx = hip_x + sx * math.cos(th) - sy * math.sin(th)
+        swy = hip_y + sx * math.sin(th) + sy * math.cos(th)
+        d.add(Line(swx, swy, swx - 3, swy - 24, strokeColor=NAVY_DARK, strokeWidth=4.5, strokeLineCap=1))
+
+    # --- eye-to-paper measurement callout (correct1 + incorrect only) ---
+    if variant in ("correct1", "incorrect"):
+        ex_local, ey_local = 8, head_cy + 1
+        ex = hip_x + ex_local * math.cos(th) - ey_local * math.sin(th)
+        ey = hip_y + ex_local * math.sin(th) + ey_local * math.cos(th)
+        tx, ty = paper_x + 13, desk_top + 9
+        d.add(Line(ex, ey, tx, ty, strokeColor=accent, strokeWidth=1, strokeDashArray=[3, 2]))
+        d.add(Circle(ex, ey, 2, fillColor=accent, strokeColor=None))
+        d.add(Circle(tx, ty, 2, fillColor=accent, strokeColor=None))
+        label = "25-45cm" if variant == "correct1" else "8-10cm"
+        lx, ly = (ex + tx) / 2 + 4, (ey + ty) / 2 + 10
+        d.add(String(lx, ly, label, fontName="Helvetica-Bold", fontSize=8.5, fillColor=accent, textAnchor="middle"))
 
     # --- check / X badge in the top corner ---
-    bx, by = width - 26, height - 24
-    d.add(Circle(bx, by, 16, fillColor=accent, strokeColor=WHITE, strokeWidth=2))
+    bx, by = width - 18, height - 16
+    d.add(Circle(bx, by, 12, fillColor=WHITE, strokeColor=accent, strokeWidth=2))
     if correct:
-        d.add(PolyLine([bx - 7, by, bx - 2, by - 6, bx + 8, by + 7],
-                       strokeColor=WHITE, strokeWidth=3, strokeLineCap=1, strokeLineJoin=1))
+        d.add(PolyLine([bx - 5, by, bx - 1, by - 4, bx + 6, by + 5],
+                       strokeColor=accent, strokeWidth=2.4, strokeLineCap=1, strokeLineJoin=1))
     else:
-        d.add(Line(bx - 6, by - 6, bx + 6, by + 6, strokeColor=WHITE, strokeWidth=3, strokeLineCap=1))
-        d.add(Line(bx - 6, by + 6, bx + 6, by - 6, strokeColor=WHITE, strokeWidth=3, strokeLineCap=1))
+        d.add(Line(bx - 5, by - 5, bx + 5, by + 5, strokeColor=accent, strokeWidth=2.4, strokeLineCap=1))
+        d.add(Line(bx - 5, by + 5, bx + 5, by - 5, strokeColor=accent, strokeWidth=2.4, strokeLineCap=1))
 
     return d
